@@ -1,0 +1,162 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#142c32">
+<meta name="description" content="PAULO FIT — your 12-week calisthenics and weight-loss tracker.">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icon.svg" type="image/svg+xml">
+<title>PAULO FIT</title>
+<style>
+:root{--bg:#f3f6f4;--card:#fff;--ink:#172b30;--muted:#687b7c;--green:#16845b;--pale:#e6f3ec;--line:#dce6e1;--nav:#142c32}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font:16px system-ui,-apple-system,Segoe UI,sans-serif}
+header{background:var(--nav);color:white;padding:22px 18px 20px;border-radius:0 0 22px 22px}
+h1{margin:0;font-size:25px;letter-spacing:1.5px}header p{margin:5px 0 0;color:#c3d5d0;font-size:13px}
+main{max-width:760px;margin:auto;padding:16px 14px 90px}
+nav{display:flex;gap:7px;overflow:auto;padding:12px 14px;background:#fff;position:sticky;top:0;z-index:5;border-bottom:1px solid var(--line)}
+nav button{white-space:nowrap;border:0;border-radius:20px;padding:9px 13px;background:#edf2ef;color:var(--ink);font-weight:650}
+nav button.active{background:var(--nav);color:#fff}
+.page{display:none}.page.active{display:block}
+.grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:15px;margin:10px 0;box-shadow:0 2px 8px #18352b08}
+.kicker{font-size:12px;color:var(--muted);text-transform:uppercase;letter-spacing:.7px}.big{font-size:27px;font-weight:800;margin-top:3px}
+h2{font-size:19px;margin:8px 0}h3{font-size:16px;margin:0 0 8px}
+.small{font-size:13px;color:var(--muted)}.pill{display:inline-block;background:var(--pale);color:#116343;border-radius:20px;padding:5px 9px;font-size:12px;font-weight:700}
+button,.btn{cursor:pointer}.primary{background:var(--green);color:white;border:0;border-radius:11px;padding:12px 15px;font-weight:750;width:100%;margin-top:8px}
+.secondary{background:#edf2ef;color:var(--ink);border:1px solid var(--line);border-radius:10px;padding:10px 12px;font-weight:650}
+input,select{width:100%;padding:11px;border:1px solid var(--line);border-radius:10px;font:inherit;background:#fff;color:var(--ink);margin:5px 0 10px}
+label{font-size:13px;font-weight:700;display:block;margin-top:9px}
+.exercise{display:grid;grid-template-columns:1fr auto;gap:8px;padding:11px 0;border-bottom:1px solid var(--line);align-items:center}
+.exercise:last-child{border:0}.exercise small{display:block;color:var(--muted);margin-top:3px}
+.check{width:23px;height:23px;accent-color:var(--green)}
+.progress{height:9px;border-radius:20px;background:#e8efeb;overflow:hidden}.progress span{display:block;height:100%;background:var(--green)}
+.row{display:flex;align-items:center;justify-content:space-between;gap:10px}
+ul{padding-left:20px;line-height:1.65}.notice{background:#fff7e6;border:1px solid #f0dfb5;border-radius:12px;padding:12px;font-size:13px}
+footer{text-align:center;color:var(--muted);font-size:12px;padding:20px}
+@media(min-width:600px){main{padding-top:22px}.grid{grid-template-columns:repeat(4,minmax(0,1fr))}}
+</style>
+</head>
+<body>
+<header><h1>PAULO FIT</h1><p>YOUR JOURNEY TO 100 KG · 12-WEEK FOUNDATION</p></header>
+<nav id="tabs">
+<button class="active" data-page="home">Dashboard</button><button data-page="workout">Workouts</button><button data-page="progress">Progress</button><button data-page="nutrition">Nutrition</button><button data-page="calendar">Calendar</button>
+</nav>
+<main>
+<section id="home" class="page active">
+<div class="grid">
+<div class="card"><div class="kicker">Current weight</div><div class="big" id="homeWeight">135 kg</div><div class="small">Starting baseline</div></div>
+<div class="card"><div class="kicker">Target weight</div><div class="big">100 kg</div><div class="small">35 kg long-term goal</div></div>
+<div class="card"><div class="kicker">Programme</div><div class="big">12 weeks</div><div class="small">Foundation block</div></div>
+<div class="card"><div class="kicker">Daily calories</div><div class="big">2,400–2,700</div><div class="small">Initial trial range</div></div>
+</div>
+<div class="card">
+<div class="row"><h2>This week's training</h2><span class="pill" id="weekCount">0 / 5 completed</span></div>
+<div class="progress"><span id="weekBar" style="width:0%"></span></div>
+<div id="weekList"></div>
+</div>
+<div class="card"><h2>Today's focus</h2><div id="todayFocus"></div><button class="primary" onclick="showPage('workout')">Open today's workout</button></div>
+<div class="notice">Train progressively, not to exhaustion. Stop for chest pain, fainting, unusual breathlessness or concerning symptoms. Arrange a baseline GP check before vigorous exercise.</div>
+</section>
+<section id="workout" class="page">
+<div class="row"><h2>Training programme</h2><select id="phase" style="width:auto" onchange="renderWorkout()"><option value="1">Weeks 1–4</option><option value="2">Weeks 5–8</option><option value="3">Weeks 9–11</option><option value="4">Week 12</option></select></div>
+<div class="small">Tick each exercise when completed. Your completion is saved on this device.</div>
+<div id="workoutContent"></div>
+</section>
+<section id="progress" class="page">
+<div class="card"><h2>Log your measurements</h2>
+<label>Date</label><input type="date" id="logDate">
+<label>Weight (kg)</label><input type="number" id="logWeight" step=".1" placeholder="e.g. 133.5">
+<label>Waist (cm)</label><input type="number" id="logWaist" step=".1" placeholder="Optional">
+<label>Notes</label><input id="logNotes" placeholder="Energy, recovery, wins or challenges">
+<button class="primary" onclick="saveLog()">Save progress entry</button></div>
+<div class="card"><h2>Progress history</h2><div id="history"></div></div>
+</section>
+<section id="nutrition" class="page">
+<div class="card"><h2>Daily nutrition targets</h2>
+<div class="grid">
+<div><div class="kicker">Calories</div><div class="big">2,400–2,700</div></div>
+<div><div class="kicker">Protein</div><div class="big">140–170 g</div></div>
+<div><div class="kicker">Carbs</div><div class="big">250–300 g</div></div>
+<div><div class="kicker">Fats</div><div class="big">70–90 g</div></div>
+</div>
+<p class="small">Initial estimates only. Track weekly average weight for 2–3 weeks before adjusting. Prioritise protein, vegetables, fibre and portion control.</p></div>
+<div class="card"><h2>Simple daily checklist</h2><div id="foodChecks"></div></div>
+<div class="notice">If you have diabetes, kidney disease, take glucose-lowering medication, or have other medical considerations, agree nutrition and fluid targets with your clinician. Avoid aggressive restriction.</div>
+</section>
+<section id="calendar" class="page">
+<div class="card"><h2>Google Calendar</h2>
+<p>Export the 12-week training schedule as an .ics calendar file, then import it into Google Calendar. This is a one-way calendar import; workout logs stay in PAULO FIT and do not sync back to Google Calendar.</p>
+<button class="primary" onclick="downloadCalendar()">Download 12-week calendar (.ics)</button>
+<p class="small">In Google Calendar on a computer: Settings → Import & export → Select file → Import. Choose your training calendar. You can then view it on Android.</p></div>
+<div class="card"><h2>Weekly schedule</h2>
+<ul><li>Monday — Upper body + core</li><li>Tuesday — Aerobic endurance walk</li><li>Wednesday — Lower body + core</li><li>Thursday — Recovery and mobility</li><li>Friday — Full-body conditioning</li><li>Saturday — Cardio intervals / endurance</li><li>Sunday — Rest and progress check-in</li></ul>
+</div>
+</section>
+<footer>PAULO FIT · Data is stored locally in this browser. Export your calendar separately.</footer>
+</main>
+<script>
+const plans={
+Monday:{title:"Upper body + core",type:"Strength",items:[["Incline push-ups","3 × 10–12"],["Wall push-ups","2 × 12–15"],["Wall shoulder taps","3 × 10 each"],["Prone Y-T-W raises","3 × 8 each position"],["Bird dogs","3 × 10 each"],["Elevated plank","3 × 20–30 sec"]]},
+Tuesday:{title:"Aerobic endurance",type:"Cardio",items:[["Easy warm-up walk","5 min"],["Brisk walk","25–30 min (progress by phase)"],["Cool-down walk","5 min"]]},
+Wednesday:{title:"Lower body + core",type:"Strength",items:[["Chair squats","3 × 12–15"],["Supported reverse lunges","3 × 8 each"],["Glute bridges","3 × 15"],["Standing calf raises","3 × 15–20"],["Bird dogs","3 × 10 each"],["Standing knee raises","3 × 12 each"]]},
+Thursday:{title:"Recovery + mobility",type:"Recovery",items:[["Cat-cow, hip and ankle mobility","10–15 min"],["Hamstring and hip-flexor stretches","5–10 min"],["Easy walk (optional)","10–20 min"]]},
+Friday:{title:"Full-body conditioning",type:"Strength",items:[["Incline push-ups","3 × 10"],["Bodyweight / chair squats","3 × 12"],["Standing mountain climbers","3 × 20"],["Glute bridges","3 × 15"],["Prone Y-T-W raises","2 × 8 each"],["Marching on the spot","3 × 60 sec"]]},
+Saturday:{title:"Cardio + stamina",type:"Cardio",items:[["Warm-up walk","5 min"],["Alternate easy 3 min / brisk 2 min","6 cycles initially"],["Cool-down walk","5 min"]]},
+Sunday:{title:"Rest + progress check-in",type:"Recovery",items:[["Morning weigh-in (weekly average context)","1 entry"],["Waist measurement","1 entry"],["Review workouts, food and recovery","5 min"],["Plan next week","5 min"]]}
+};
+const days=["Monday","Tuesday","Wednesday","Thursday","Friday","Saturday","Sunday"];
+const keys={Monday:"Mon",Tuesday:"Tue",Wednesday:"Wed",Thursday:"Thu",Friday:"Fri",Saturday:"Sat",Sunday:"Sun"};
+const state=JSON.parse(localStorage.getItem("paulofit")||'{"logs":[],"checks":{},"food":{}}');
+function persist(){localStorage.setItem("paulofit",JSON.stringify(state))}
+function mondayOf(d){let x=new Date(d);x.setHours(0,0,0,0);x.setDate(x.getDate()-(x.getDay()+6)%7);return x}
+function dateKey(d){return d.toISOString().slice(0,10)}
+function currentWeekKey(){return dateKey(mondayOf(new Date()))}
+function weekKeyForDay(day){let d=mondayOf(new Date());d.setDate(d.getDate()+days.indexOf(day));return dateKey(d)}
+function phaseText(){let p=+document.getElementById("phase").value;return p===1?"Foundation: 2–3 sets; keep 2–3 reps in reserve.":p===2?"Conditioning: 3 sets; add 2–3 reps where comfortable.":p===3?"Strength/endurance: 3–4 sets on major movements; progress variations carefully.":"Deload: reduce strength volume by 30–40%; reassess."}
+function renderWorkout(){
+ let p=+document.getElementById("phase").value, html=`<div class="notice">${phaseText()} Avoid training to failure.</div>`;
+ days.forEach(day=>{let plan=plans[day];html+=`<div class="card"><div class="row"><h3>${day} · ${plan.title}</h3><span class="pill">${plan.type}</span></div>`;
+ plan.items.forEach((it,i)=>{let id=`${weekKeyForDay(day)}-${day}-${i}`,done=!!state.checks[id];html+=`<div class="exercise"><div><b>${it[0]}</b><small>${it[1]}</small></div><input class="check" type="checkbox" ${done?"checked":""} onchange="toggleCheck('${id}',this.checked)"></div>`});
+ html+=`</div>`});
+ document.getElementById("workoutContent").innerHTML=html;
+}
+function toggleCheck(id,v){state.checks[id]=v;persist();renderHome()}
+function renderHome(){
+ let mon=mondayOf(new Date()),count=0,html="";
+ days.slice(0,5).forEach(day=>{let n=plans[day].items.length,done=plans[day].items.filter((_,i)=>state.checks[`${weekKeyForDay(day)}-${day}-${i}`]).length;if(done===n)count++;html+=`<div class="exercise"><div><b>${day}</b><small>${plans[day].title}</small></div><span class="pill">${done}/${n}</span></div>`});
+ document.getElementById("weekList").innerHTML=html;document.getElementById("weekCount").textContent=count+" / 5 completed";document.getElementById("weekBar").style.width=(count/5*100)+"%";
+ let today=days[(new Date().getDay()+6)%7];document.getElementById("todayFocus").innerHTML=`<b>${today}: ${plans[today].title}</b><p class="small">${plans[today].items.map(x=>x[0]).join(" · ")}</p>`;
+ if(state.logs.length){let latest=[...state.logs].sort((a,b)=>b.date.localeCompare(a.date))[0];document.getElementById("homeWeight").textContent=latest.weight?latest.weight+" kg":"135 kg"}
+}
+function saveLog(){
+ let date=document.getElementById("logDate").value||dateKey(new Date()),weight=document.getElementById("logWeight").value,waist=document.getElementById("logWaist").value,notes=document.getElementById("logNotes").value;
+ if(!weight&&!waist){alert("Enter at least a weight or waist measurement.");return}
+ state.logs.push({date,weight,waist,notes});persist();renderHistory();renderHome();
+ document.getElementById("logWeight").value="";document.getElementById("logWaist").value="";document.getElementById("logNotes").value="";
+}
+function renderHistory(){let logs=[...state.logs].sort((a,b)=>b.date.localeCompare(a.date));document.getElementById("history").innerHTML=logs.length?logs.map(x=>`<div class="exercise"><div><b>${x.date}</b><small>${x.notes||""}</small></div><div style="text-align:right"><b>${x.weight?x.weight+" kg":"—"}</b><small>${x.waist?x.waist+" cm waist":""}</small></div></div>`).join(""):"<p class='small'>No entries yet. Add your first measurement above.</p>"}
+function renderFood(){let items=["Protein with each main meal","Vegetables or fruit at least 5 servings","Water regularly through the day","Stayed near calorie target","Prioritised sleep"];document.getElementById("foodChecks").innerHTML=items.map((x,i)=>`<div class="exercise"><b>${x}</b><input class="check" type="checkbox" ${state.food[dateKey(new Date())+"-"+i]?"checked":""} onchange="state.food['${dateKey(new Date())}-${i}']=this.checked;persist()"></div>`).join("")}
+function showPage(id){document.querySelectorAll(".page").forEach(x=>x.classList.toggle("active",x.id===id));document.querySelectorAll("nav button").forEach(x=>x.classList.toggle("active",x.dataset.page===id));if(id==="workout")renderWorkout();if(id==="progress")renderHistory();if(id==="nutrition")renderFood()}
+document.querySelectorAll("nav button").forEach(b=>b.onclick=()=>showPage(b.dataset.page));
+function icsDate(d){return d.toISOString().replace(/[-:]/g,"").replace(/\.\d{3}/,"")}
+function esc(s){return s.replace(/\\/g,"\\\\").replace(/,/g,"\\,").replace(/;/g,"\\;").replace(/\n/g,"\\n")}
+function downloadCalendar(){
+ let start=mondayOf(new Date()),events=[],uid=0;
+ // Calendar starts on the next Monday if opened mid-week; includes 12 weeks.
+ if(start<new Date(new Date().setHours(0,0,0,0))){/* keep current week's Monday */}
+ for(let w=0;w<12;w++)days.forEach((day,i)=>{
+  let d=new Date(start);d.setDate(d.getDate()+w*7+i);d.setHours(0,0,0,0);
+  let title=plans[day].title,desc=plans[day].items.map(x=>x[0]+" — "+x[1]).join("\\n");
+  let hour=day==="Sunday"?8:day==="Thursday"?18:18;
+  let dur=day==="Thursday"?30:day==="Sunday"?15:60;
+  let begin=new Date(d);begin.setHours(hour,0,0,0);let end=new Date(begin.getTime()+dur*60000);
+  events.push("BEGIN:VEVENT","UID:paulofit-"+(uid++)+"@paulofit","DTSTAMP:"+icsDate(new Date()),"DTSTART:"+icsDate(begin),"DTEND:"+icsDate(end),"SUMMARY:"+esc("PAULO FIT — "+day+": "+title),"DESCRIPTION:"+esc(desc),"END:VEVENT");
+ });
+ let ics=["BEGIN:VCALENDAR","VERSION:2.0","PRODID:-//PAULO FIT//12 Week Programme//EN","CALSCALE:GREGORIAN","METHOD:PUBLISH",...events,"END:VCALENDAR"].join("\r\n");
+ let blob=new Blob([ics],{type:"text/calendar;charset=utf-8"}),a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download="paulo-fit-12-week-calendar.ics";a.click();URL.revokeObjectURL(a.href);
+}
+document.getElementById("logDate").value=dateKey(new Date());renderHome();renderWorkout();renderHistory();
+if("serviceWorker" in navigator && location.protocol.startsWith("http"))navigator.serviceWorker.register("./sw.js").catch(()=>{});
+</script>
+</body></html>

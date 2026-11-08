@@ -1,0 +1,17 @@
+{
+  "name": "PAULO FIT \u2013 100 KG Project",
+  "short_name": "PAULO FIT",
+  "start_url": "./",
+  "display": "standalone",
+  "background_color": "#f3f6f4",
+  "theme_color": "#142c32",
+  "description": "Offline-first 12-week calisthenics and weight-loss tracker.",
+  "icons": [
+    {
+      "src": "icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}
